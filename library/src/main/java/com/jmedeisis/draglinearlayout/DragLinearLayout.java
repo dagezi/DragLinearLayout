@@ -176,6 +176,11 @@ public class DragLinearLayout extends LinearLayout {
     private int activePointerId = INVALID_POINTER_ID;
 
     /**
+     * Milliseconds to hold before start dragging.
+     */
+    private int holdingMsToDrag = 0;
+
+    /**
      * The shadow to be drawn above the {@link #draggedItem}.
      */
     private final Drawable dragTopShadowDrawable;
@@ -331,6 +336,18 @@ public class DragLinearLayout extends LinearLayout {
     @SuppressWarnings("UnusedDeclaration")
     public int getScrollSensitiveHeight() {
         return scrollSensitiveAreaHeight;
+    }
+
+    /**
+     * Sets the period user need to hold a point so that this view consider user want to start dragging.
+     * @param holdingMs Period in Milliseconds
+     */
+    public void setHoldingMsToDrag(int holdingMs) {
+        holdingMsToDrag = holdingMs;
+    }
+
+    public int getHoldingMsToDrag() {
+        return holdingMsToDrag;
     }
 
     /**
@@ -614,14 +631,16 @@ public class DragLinearLayout extends LinearLayout {
      *      DragHandleOnTouchListener (attached to each draggable child) #onTouch receives DOWN
      *      #startDetectingDrag is called, draggedItem is now detecting
      *      view does not handle touch, so our #onTouchEvent receives DOWN
-     *          draggedItem.detecting == true, we #startDrag() and proceed to handle the drag
+     *          draggedItem.detecting == true, we #waitHoldToDrag()
+     *      After the #holdingMsToDrag, #startDrag() if dy < touch slop, otherwise, abandon detecting
+     *
      * 3) User taps on interactive drag handle / child, e.g. Button.
      *      #onInterceptTouchEvent receives DOWN
      *      DragHandleOnTouchListener (attached to each draggable child) #onTouch receives DOWN
      *      #startDetectingDrag is called, draggedItem is now detecting
      *      view handles touch, so our #onTouchEvent is not called yet
      *      #onInterceptTouchEvent receives ACTION_MOVE
-     *      if dy > touch slop, we assume user wants to drag and intercept the event
+     *      if dy > touch slop and #holdingMsToDrag == 0, we assume user wants to drag and intercept the event
      *      #onTouchEvent receives further ACTION_MOVE events, proceed to handle the drag
      *
      * For cases 2) and 3), lifting the active pointer at any point in the sequence of events
@@ -643,7 +662,7 @@ public class DragLinearLayout extends LinearLayout {
                 final int pointerIndex = event.findPointerIndex(activePointerId);
                 final float y = MotionEventCompat.getY(event, pointerIndex);
                 final float dy = y - downY;
-                if (Math.abs(dy) > slop) {
+                if (Math.abs(dy) > slop && holdingMsToDrag == 0) {
                     startDrag();
                     return true;
                 }
@@ -673,18 +692,24 @@ public class DragLinearLayout extends LinearLayout {
         switch (MotionEventCompat.getActionMasked(event)) {
             case MotionEvent.ACTION_DOWN: {
                 if (!draggedItem.detecting || draggedItem.settling()) return false;
-                startDrag();
+                waitHoldToDrag();
                 return true;
             }
             case MotionEvent.ACTION_MOVE: {
-                if (!draggedItem.dragging) break;
+                if (!draggedItem.detecting) break;
                 if (INVALID_POINTER_ID == activePointerId) break;
 
-                int pointerIndex = event.findPointerIndex(activePointerId);
-                int lastEventY = (int) MotionEventCompat.getY(event, pointerIndex);
-                int deltaY = lastEventY - downY;
+                final int pointerIndex = event.findPointerIndex(activePointerId);
+                final float y = MotionEventCompat.getY(event, pointerIndex);
+                final float dy = y - downY;
+                if (!draggedItem.dragging) {
+                    if (holdingMsToDrag > 0 && Math.abs(dy) > slop) {
+                        draggedItem.stopDetecting();
+                    }
+                    break;
+                }
 
-                onDrag(deltaY);
+                onDrag((int) dy);
                 return true;
             }
             case MotionEvent.ACTION_POINTER_UP: {
@@ -707,6 +732,21 @@ public class DragLinearLayout extends LinearLayout {
             }
         }
         return false;
+    }
+
+    private void waitHoldToDrag() {
+        if (holdingMsToDrag > 0) {
+            getHandler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (draggedItem.detecting && !draggedItem.settling()) {
+                        startDrag();
+                    }
+                }
+            }, holdingMsToDrag);
+        } else {
+            startDrag();
+        }
     }
 
     private void onTouchEnd() {
