@@ -21,5 +21,8 @@
     </string-array>
 
     <string name="title_activity_note">Drag&amp;Drop Notes Demo</string>
+    <string name="hold_to_drag_title">Demo of holding to drag. You can scroll by flick and drag and drop by holding</string>
+    <string name="action_view_hold_to_drag">VIew hold to drag demo</string>
+    <string name="title_activity_hold_to_drag">Holding to drag</string>
 
 </resources>

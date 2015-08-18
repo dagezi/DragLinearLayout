@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Additional children for this container are added in .NoteActivity#onCreate(). -->
+        <com.jmedeisis.draglinearlayout.DragLinearLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="96dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:src="@drawable/cherry_blossom"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/demo_image_content_description" />
+
+            <TextView
+                android:text="@string/hold_to_drag_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/ListHeader" />
+
+
+            <TextView
+                android:text="@string/list_item_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/SpaciousListItem" />
+
+            <TextView
+                android:text="@string/list_item_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/SpaciousListItem" />
+
+            <TextView
+                android:text="@string/list_item_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/SpaciousListItem" />
+
+        </com.jmedeisis.draglinearlayout.DragLinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

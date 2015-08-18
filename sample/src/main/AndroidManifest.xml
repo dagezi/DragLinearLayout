@@ -24,6 +24,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jmedeisis.example.draglinearlayout.DemoActivity" />
         </activity>
+        <activity
+            android:name=".HoldingToDragActivity"
+            android:label="@string/title_activity_hold_to_drag"
+            android:parentActivityName=".DemoActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jmedeisis.example.draglinearlayout.DemoActivity" />
+        </activity>
+
     </application>
 
 </manifest>

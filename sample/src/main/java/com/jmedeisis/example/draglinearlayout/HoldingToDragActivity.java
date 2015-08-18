@@ -1,18 +1,17 @@
 package com.jmedeisis.example.draglinearlayout;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ScrollView;
 
 import com.jmedeisis.draglinearlayout.DragLinearLayout;
 
-public class DemoActivity extends AppCompatActivity {
-
+public class HoldingToDragActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_demo);
+        setContentView(R.layout.activity_holding_to_drag);
 
         DragLinearLayout dragLinearLayout = (DragLinearLayout) findViewById(R.id.container);
         // set all children draggable except the first (the header)
@@ -21,18 +20,8 @@ public class DemoActivity extends AppCompatActivity {
             dragLinearLayout.setViewDraggable(child, child); // the child is its own drag handle
         }
 
-        findViewById(R.id.noteDemoButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(DemoActivity.this, NoteActivity.class));
-            }
-        });
-        findViewById(R.id.holdToDragDemoButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(DemoActivity.this, HoldingToDragActivity.class));
-            }
-        });
-
+        ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
+        dragLinearLayout.setContainerScrollView(scrollView);
+        dragLinearLayout.setHoldingMsToDrag(500);
     }
 }
