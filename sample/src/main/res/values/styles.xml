@@ -52,4 +52,14 @@
         <item name="android:paddingTop">@dimen/quarter_default_vertical_margin</item>
     </style>
 
+    <style name="BorderListItem">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/darker_gray</item>
+        <item name="android:background">@drawable/border_line</item>
+        <item name="android:paddingLeft">@dimen/half_default_horizontal_margin</item>
+        <item name="android:paddingRight">@dimen/half_default_horizontal_margin</item>
+        <item name="android:paddingBottom">@dimen/half_default_vertical_margin</item>
+        <item name="android:paddingTop">@dimen/quarter_default_vertical_margin</item>
+    </style>
+
 </resources>

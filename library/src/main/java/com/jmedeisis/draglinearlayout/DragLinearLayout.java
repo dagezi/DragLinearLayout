@@ -275,8 +275,16 @@ public class DragLinearLayout extends LinearLayout {
                 "Draggable children and their drag handles must not be null.");
         }
         
+        dragHandle.setOnTouchListener(new DragHandleOnTouchListener(child));
+        setViewMovable(child);
+    }
+
+    /**
+     * Makes the child movable. Even if it's not draggable, it'll be shifted by
+     * effect of other draggable items.
+     */
+    public void setViewMovable(View child) {
         if (this == child.getParent()) {
-            dragHandle.setOnTouchListener(new DragHandleOnTouchListener(child));
             draggableChildren.put(indexOfChild(child), new DraggableChild());
         } else {
             Log.e(LOG_TAG, child + " is not a child, cannot make draggable.");

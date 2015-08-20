@@ -30,23 +30,29 @@
 
 
             <TextView
-                android:text="@string/list_item_1"
+                android:text="@string/list_item_to_hold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/SpaciousListItem" />
 
             <TextView
-                android:text="@string/list_item_2"
+                android:text="@string/list_item_to_hold_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/SpaciousListItem" />
 
             <TextView
-                android:text="@string/list_item_3"
+                android:id="@+id/border"
+                android:text="@string/list_border"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/BorderListItem" />
+
+            <TextView
+                android:text="@string/list_item_to_hold_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/SpaciousListItem" />
-
         </com.jmedeisis.draglinearlayout.DragLinearLayout>
 
     </ScrollView>

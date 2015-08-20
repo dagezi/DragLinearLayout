@@ -17,7 +17,11 @@ public class HoldingToDragActivity extends AppCompatActivity {
         // set all children draggable except the first (the header)
         for(int i = 1; i < dragLinearLayout.getChildCount(); i++){
             View child = dragLinearLayout.getChildAt(i);
-            dragLinearLayout.setViewDraggable(child, child); // the child is its own drag handle
+            if (child.getId() == R.id.border) {
+                dragLinearLayout.setViewMovable(child);
+            } else {
+                dragLinearLayout.setViewDraggable(child, child);
+            }
         }
 
         ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
