@@ -62,6 +62,13 @@ public class DragLinearLayout extends LinearLayout {
 
     private OnViewSwapListener swapListener;
 
+    public interface DragStateListener {
+        void onStartDrag(View view);
+        void onFinishDrag(View view);
+    }
+
+    private DragStateListener dragStateListener;
+
     private LayoutTransition layoutTransition;
 
     /**
@@ -365,6 +372,10 @@ public class DragLinearLayout extends LinearLayout {
         this.swapListener = swapListener;
     }
 
+    public void setDragStateListener(DragStateListener dragStateListener) {
+        this.dragStateListener = dragStateListener;
+    }
+
     /**
      * A linear relationship b/w distance and duration, bounded.
      */
@@ -392,6 +403,10 @@ public class DragLinearLayout extends LinearLayout {
     private void startDrag() {
         // remove layout transition, it conflicts with drag animation
         // we will restore it after drag animation end, see onDragStop()
+        if (dragStateListener != null) {
+            dragStateListener.onStartDrag(draggedItem.view);
+        }
+
         layoutTransition = getLayoutTransition();
         if (layoutTransition != null) {
             setLayoutTransition(null);
@@ -431,6 +446,10 @@ public class DragLinearLayout extends LinearLayout {
             public void onAnimationEnd(Animator animation) {
                 if (!draggedItem.detecting) {
                     return; // already stopped
+                }
+
+                if (dragStateListener != null) {
+                    dragStateListener.onFinishDrag(draggedItem.view);
                 }
 
                 draggedItem.settleAnimation = null;
