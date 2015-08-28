@@ -2,8 +2,10 @@ package com.jmedeisis.example.draglinearlayout;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.jmedeisis.draglinearlayout.DragLinearLayout;
 
@@ -27,5 +29,17 @@ public class HoldingToDragActivity extends AppCompatActivity {
         ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
         dragLinearLayout.setContainerScrollView(scrollView);
         dragLinearLayout.setHoldingMsToDrag(500);
+
+        dragLinearLayout.setDragStateListener(new DragLinearLayout.DragStateListener() {
+            @Override
+            public void onStartDrag(View view) {
+                Log.d("DragTest", "onStartDrag: " + ((TextView) view).getText());
+            }
+
+            @Override
+            public void onFinishDrag(View view) {
+                Log.d("DragTest", "onFinishDrag: " + ((TextView) view).getText());
+            }
+        });
     }
 }
