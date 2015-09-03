@@ -29,6 +29,8 @@ public class HoldingToDragActivity extends AppCompatActivity {
         ScrollView scrollView = (ScrollView) findViewById(R.id.scrollView);
         dragLinearLayout.setContainerScrollView(scrollView);
         dragLinearLayout.setHoldingMsToDrag(500);
+        dragLinearLayout.setZoomRateOnDrag(0.8f);
+        dragLinearLayout.showDragShadow(false);
 
         dragLinearLayout.setDragStateListener(new DragLinearLayout.DragStateListener() {
             @Override

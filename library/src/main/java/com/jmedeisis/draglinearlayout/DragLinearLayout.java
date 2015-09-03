@@ -187,6 +187,8 @@ public class DragLinearLayout extends LinearLayout {
      */
     private int holdingMsToDrag = 0;
 
+    private boolean showDragShadow = true;
+
     /**
      * The shadow to be drawn above the {@link #draggedItem}.
      */
@@ -196,6 +198,11 @@ public class DragLinearLayout extends LinearLayout {
      */
     private final Drawable dragBottomShadowDrawable;
     private final int dragShadowHeight;
+
+    /**
+     * The rate to zoom on drag.
+     */
+    private float zoomRateOnDrag = 1.0f;
 
     /**
      * See {@link #setContainerScrollView(android.widget.ScrollView)}.
@@ -361,8 +368,22 @@ public class DragLinearLayout extends LinearLayout {
         holdingMsToDrag = holdingMs;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public int getHoldingMsToDrag() {
         return holdingMsToDrag;
+    }
+
+    public void showDragShadow(boolean show) {
+        showDragShadow = show;
+    }
+
+    public void setZoomRateOnDrag(float rate) {
+        zoomRateOnDrag = rate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public float getZoomRateOnDrag() {
+        return zoomRateOnDrag;
     }
 
     /**
@@ -625,21 +646,27 @@ public class DragLinearLayout extends LinearLayout {
         super.dispatchDraw(canvas);
 
         if (draggedItem.detecting && (draggedItem.dragging || draggedItem.settling())) {
-            canvas.save();
-            canvas.translate(0, draggedItem.totalDragOffset);
-            draggedItem.viewDrawable.draw(canvas);
-
             final int left = draggedItem.viewDrawable.getBounds().left;
             final int right = draggedItem.viewDrawable.getBounds().right;
             final int top = draggedItem.viewDrawable.getBounds().top;
             final int bottom = draggedItem.viewDrawable.getBounds().bottom;
 
-            dragBottomShadowDrawable.setBounds(left, bottom, right, bottom + dragShadowHeight);
-            dragBottomShadowDrawable.draw(canvas);
+            final float cx = (left + right) / 2f;
+            final float cy = (top + bottom) / 2f;
 
-            if (null != dragTopShadowDrawable) {
-                dragTopShadowDrawable.setBounds(left, top - dragShadowHeight, right, top);
-                dragTopShadowDrawable.draw(canvas);
+            canvas.save();
+            canvas.translate(0, draggedItem.totalDragOffset);
+            canvas.scale(zoomRateOnDrag, zoomRateOnDrag, cx, cy);
+            draggedItem.viewDrawable.draw(canvas);
+
+            if (showDragShadow) {
+                dragBottomShadowDrawable.setBounds(left, bottom, right, bottom + dragShadowHeight);
+                dragBottomShadowDrawable.draw(canvas);
+
+                if (null != dragTopShadowDrawable) {
+                    dragTopShadowDrawable.setBounds(left, top - dragShadowHeight, right, top);
+                    dragTopShadowDrawable.draw(canvas);
+                }
             }
 
             canvas.restore();
