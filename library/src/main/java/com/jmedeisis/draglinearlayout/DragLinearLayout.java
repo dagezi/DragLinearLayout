@@ -498,7 +498,7 @@ public class DragLinearLayout extends LinearLayout {
 
         int currentTop = draggedItem.startTop + draggedItem.totalDragOffset;
 
-        handleContainerScroll(currentTop);
+        handleContainerScroll(downY + draggedItem.totalDragOffset);
 
         int belowPosition = nextDraggablePosition(draggedItem.position);
         int abovePosition = previousDraggablePosition(draggedItem.position);
@@ -603,18 +603,18 @@ public class DragLinearLayout extends LinearLayout {
 
     private Runnable dragUpdater;
 
-    private void handleContainerScroll(final int currentTop) {
+    private void handleContainerScroll(final int currentY) {
         if (null != containerScrollView) {
             final int startScrollY = containerScrollView.getScrollY();
-            final int absTop = getTop() - startScrollY + currentTop;
+            final int absY = getTop() - startScrollY + currentY;
             final int height = containerScrollView.getHeight();
 
             final int delta;
 
-            if (absTop < scrollSensitiveAreaHeight) {
-                delta = (int) (-MAX_DRAG_SCROLL_SPEED * smootherStep(scrollSensitiveAreaHeight, 0, absTop));
-            } else if (absTop > height - scrollSensitiveAreaHeight) {
-                delta = (int) (MAX_DRAG_SCROLL_SPEED * smootherStep(height - scrollSensitiveAreaHeight, height, absTop));
+            if (absY < scrollSensitiveAreaHeight) {
+                delta = (int) (-MAX_DRAG_SCROLL_SPEED * smootherStep(scrollSensitiveAreaHeight, 0, absY));
+            } else if (absY > height - scrollSensitiveAreaHeight) {
+                delta = (int) (MAX_DRAG_SCROLL_SPEED * smootherStep(height - scrollSensitiveAreaHeight, height, absY));
             } else {
                 delta = 0;
             }
