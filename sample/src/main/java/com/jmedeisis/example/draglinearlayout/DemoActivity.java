@@ -33,6 +33,12 @@ public class DemoActivity extends AppCompatActivity {
                 startActivity(new Intent(DemoActivity.this, HoldingToDragActivity.class));
             }
         });
+        findViewById(R.id.scrollByDragDemoButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(DemoActivity.this, ScrollByDragActivity.class));
+            }
+        });
 
     }
 }

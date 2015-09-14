@@ -33,6 +33,15 @@
                 android:value="com.jmedeisis.example.draglinearlayout.DemoActivity" />
         </activity>
 
+        <activity
+            android:name=".ScrollByDragActivity"
+            android:label="Scroll by drag"
+            android:parentActivityName=".DemoActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jmedeisis.example.draglinearlayout.DemoActivity" />
+        </activity>
+
     </application>
 
 </manifest>
