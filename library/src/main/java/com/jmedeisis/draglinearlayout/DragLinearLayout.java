@@ -631,17 +631,17 @@ public class DragLinearLayout extends LinearLayout {
             final int absY = getTop() - startScrollY + currentY;
             final int height = containerScrollView.getHeight();
 
-            final int delta;
+            int delta = 0;
 
             if (absY < scrollSensitiveAreaHeight) {
                 delta = (int) (-MAX_DRAG_SCROLL_SPEED * smootherStep(scrollSensitiveAreaHeight, 0, absY));
             } else if (absY > height - scrollSensitiveAreaHeight) {
                 delta = (int) (MAX_DRAG_SCROLL_SPEED * smootherStep(height - scrollSensitiveAreaHeight, height, absY));
-            } else {
-                delta = 0;
             }
 
-            containerScrollView.smoothScrollBy(0, delta);
+            if (delta != 0) {
+                containerScrollView.smoothScrollBy(0, delta);
+            }
         }
     }
 
