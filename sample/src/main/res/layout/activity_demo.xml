@@ -31,13 +31,6 @@
         android:layout_height="wrap_content"
         style="@style/SpaciousListItem" />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/cherry_blossom"
-        android:contentDescription="@string/demo_image_content_description" />
-
     <Button
         android:id="@+id/noteDemoButton"
         android:layout_width="match_parent"
@@ -52,6 +45,12 @@
         android:layout_height="wrap_content"
         style="@style/MinimalistButton"/>
 
+    <Button
+        android:id="@+id/scrollByDragDemoButton"
+        android:text="Scroll By Drag Demo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MinimalistButton"/>
 
 
 </com.jmedeisis.draglinearlayout.DragLinearLayout>
