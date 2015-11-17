@@ -47,6 +47,42 @@ public class DragLinearLayout extends LinearLayout {
     private final float nominalDistanceScaled;
 
     /**
+     * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setContainerScrollViewListener(com.jmedeisis.draglinearlayout.DragLinearLayout.ScrollViewListener)}
+     * to scroll a view which contains draggable view.
+     */
+    public interface ScrollViewListener {
+        /**
+         * See {@link android.view.View#getHeight()}
+         */
+        int getHeight();
+
+        /**
+         * See {@link android.view.View#getViewTreeObserver()}
+         */
+        ViewTreeObserver getViewTreeObserver();
+
+        /**
+         * See {@link android.view.View#getScrollY()}
+         */
+        int getScrollY();
+
+        /**
+         * See {@link android.view.View#post(java.lang.Runnable)}
+         */
+        boolean post(Runnable action);
+
+        /**
+         * See {@link android.view.View#removeCallbacks(java.lang.Runnable)}
+         */
+        boolean removeCallbacks(Runnable action);
+
+        /**
+         * See {@link android.widget.ScrollView#smoothScrollBy(int, int)}
+         */
+        void smoothScrollBy(int dx, int dy);
+    }
+
+    /**
      * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setOnViewSwapListener(com.jmedeisis.draglinearlayout.DragLinearLayout.OnViewSwapListener)}
      * to listen for draggable view swaps.
      */
@@ -207,9 +243,9 @@ public class DragLinearLayout extends LinearLayout {
     private float zoomRateOnDrag = 1.0f;
 
     /**
-     * See {@link #setContainerScrollView(android.widget.ScrollView)}.
+     * See {@link #setContainerScrollViewListener(ScrollViewListener)}.
      */
-    private ScrollView containerScrollView;
+    private ScrollViewListener containerScrollViewListener;
     private int scrollSensitiveAreaHeight;
     private static final int DEFAULT_SCROLL_SENSITIVE_AREA_HEIGHT_DP = 48;
     private static final int MAX_DRAG_SCROLL_SPEED = 16;
@@ -343,31 +379,65 @@ public class DragLinearLayout extends LinearLayout {
      * If this layout is within a {@link android.widget.ScrollView}, register it here so that it
      * can be scrolled during item drags.
      */
-    public void setContainerScrollView(ScrollView scrollView) {
-        if (containerScrollView != null) {
-            containerScrollView.getViewTreeObserver().removeOnScrollChangedListener(onScroll);
+    public void setContainerScrollView(final ScrollView scrollView) {
+        setContainerScrollViewListener(new ScrollViewListener() {
+            @Override
+            public ViewTreeObserver getViewTreeObserver() {
+                return scrollView.getViewTreeObserver();
+            }
+
+            @Override
+            public boolean post(Runnable action) {
+                return scrollView.post(action);
+            }
+
+            @Override
+            public boolean removeCallbacks(Runnable action) {
+                return scrollView.removeCallbacks(action);
+            }
+
+            @Override
+            public int getScrollY() {
+                return scrollView.getScrollY();
+            }
+
+            @Override
+            public int getHeight() {
+                return scrollView.getHeight();
+            }
+
+            @Override
+            public void smoothScrollBy(int dx, int dy) {
+                scrollView.smoothScrollBy(dx, dy);
+            }
+        });
+    }
+
+    public void setContainerScrollViewListener(ScrollViewListener listener) {
+        if (containerScrollViewListener != null) {
+            containerScrollViewListener.getViewTreeObserver().removeOnScrollChangedListener(onScroll);
         }
-        this.containerScrollView = scrollView;
-        if (containerScrollView != null) {
-            containerScrollView.getViewTreeObserver().addOnScrollChangedListener(onScroll);
+        containerScrollViewListener = listener;
+        if (containerScrollViewListener != null) {
+            containerScrollViewListener.getViewTreeObserver().addOnScrollChangedListener(onScroll);
         }
     }
 
     private ViewTreeObserver.OnScrollChangedListener onScroll = new ViewTreeObserver.OnScrollChangedListener() {
         @Override
         public void onScrollChanged() {
-            containerScrollView.removeCallbacks(scrollUpdater);
+            containerScrollViewListener.removeCallbacks(scrollUpdater);
             scrollUpdater = new Runnable() {
                 @Override
                 public void run() {
-                    int scrollY = containerScrollView.getScrollY();
+                    int scrollY = containerScrollViewListener.getScrollY();
                     // if scrollY didn't change, considered scroll has finished.
                     if (draggedItem.dragging && lastScrollY != scrollY) {
                         onDrag(draggedItem.totalDragOffset + scrollY - lastScrollY);
                     }
                 }
             };
-            containerScrollView.post(scrollUpdater);
+            containerScrollViewListener.post(scrollUpdater);
         }
     };
 
@@ -448,8 +518,8 @@ public class DragLinearLayout extends LinearLayout {
         if (layoutTransition != null) {
             setLayoutTransition(null);
         }
-        if (containerScrollView != null) {
-            lastScrollY = containerScrollView.getScrollY();
+        if (containerScrollViewListener != null) {
+            lastScrollY = containerScrollViewListener.getScrollY();
         }
         draggedItem.onDragStart();
         requestDisallowInterceptTouchEvent(true);
@@ -518,8 +588,8 @@ public class DragLinearLayout extends LinearLayout {
         draggedItem.setTotalOffset(offset);
         invalidate();
 
-        if (containerScrollView != null) {
-            lastScrollY = containerScrollView.getScrollY();
+        if (containerScrollViewListener != null) {
+            lastScrollY = containerScrollViewListener.getScrollY();
         }
         handleContainerScroll(downY + draggedItem.totalDragOffset);
 
@@ -626,10 +696,10 @@ public class DragLinearLayout extends LinearLayout {
     }
 
     private void handleContainerScroll(final int currentY) {
-        if (null != containerScrollView) {
-            final int startScrollY = containerScrollView.getScrollY();
+        if (null != containerScrollViewListener) {
+            final int startScrollY = containerScrollViewListener.getScrollY();
             final int absY = getTop() - startScrollY + currentY;
-            final int height = containerScrollView.getHeight();
+            final int height = containerScrollViewListener.getHeight();
 
             int delta = 0;
 
@@ -640,7 +710,7 @@ public class DragLinearLayout extends LinearLayout {
             }
 
             if (delta != 0) {
-                containerScrollView.smoothScrollBy(0, delta);
+                containerScrollViewListener.smoothScrollBy(0, delta);
             }
         }
     }
