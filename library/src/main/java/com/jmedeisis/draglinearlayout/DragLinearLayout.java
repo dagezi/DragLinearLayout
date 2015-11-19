@@ -47,10 +47,10 @@ public class DragLinearLayout extends LinearLayout {
     private final float nominalDistanceScaled;
 
     /**
-     * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setContainerScrollViewListener(com.jmedeisis.draglinearlayout.DragLinearLayout.ScrollViewListener)}
+     * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setScrollable(Scrollable)}
      * to scroll a view which contains draggable view.
      */
-    public interface ScrollViewListener {
+    public interface Scrollable {
         /**
          * See {@link android.view.View#getHeight()}
          */
@@ -243,9 +243,9 @@ public class DragLinearLayout extends LinearLayout {
     private float zoomRateOnDrag = 1.0f;
 
     /**
-     * See {@link #setContainerScrollViewListener(ScrollViewListener)}.
+     * See {@link #setScrollable(Scrollable)}.
      */
-    private ScrollViewListener containerScrollViewListener;
+    private Scrollable scrollable;
     private int scrollSensitiveAreaHeight;
     private static final int DEFAULT_SCROLL_SENSITIVE_AREA_HEIGHT_DP = 48;
     private static final int MAX_DRAG_SCROLL_SPEED = 16;
@@ -380,7 +380,7 @@ public class DragLinearLayout extends LinearLayout {
      * can be scrolled during item drags.
      */
     public void setContainerScrollView(final ScrollView scrollView) {
-        setContainerScrollViewListener(new ScrollViewListener() {
+        setScrollable(new Scrollable() {
             @Override
             public ViewTreeObserver getViewTreeObserver() {
                 return scrollView.getViewTreeObserver();
@@ -413,31 +413,31 @@ public class DragLinearLayout extends LinearLayout {
         });
     }
 
-    public void setContainerScrollViewListener(ScrollViewListener listener) {
-        if (containerScrollViewListener != null) {
-            containerScrollViewListener.getViewTreeObserver().removeOnScrollChangedListener(onScroll);
+    public void setScrollable(Scrollable scrollable) {
+        if (this.scrollable != null) {
+            this.scrollable.getViewTreeObserver().removeOnScrollChangedListener(onScroll);
         }
-        containerScrollViewListener = listener;
-        if (containerScrollViewListener != null) {
-            containerScrollViewListener.getViewTreeObserver().addOnScrollChangedListener(onScroll);
+        this.scrollable = scrollable;
+        if (this.scrollable != null) {
+            this.scrollable.getViewTreeObserver().addOnScrollChangedListener(onScroll);
         }
     }
 
     private ViewTreeObserver.OnScrollChangedListener onScroll = new ViewTreeObserver.OnScrollChangedListener() {
         @Override
         public void onScrollChanged() {
-            containerScrollViewListener.removeCallbacks(scrollUpdater);
+            scrollable.removeCallbacks(scrollUpdater);
             scrollUpdater = new Runnable() {
                 @Override
                 public void run() {
-                    int scrollY = containerScrollViewListener.getScrollY();
+                    int scrollY = scrollable.getScrollY();
                     // if scrollY didn't change, considered scroll has finished.
                     if (draggedItem.dragging && lastScrollY != scrollY) {
                         onDrag(draggedItem.totalDragOffset + scrollY - lastScrollY);
                     }
                 }
             };
-            containerScrollViewListener.post(scrollUpdater);
+            scrollable.post(scrollUpdater);
         }
     };
 
@@ -518,8 +518,8 @@ public class DragLinearLayout extends LinearLayout {
         if (layoutTransition != null) {
             setLayoutTransition(null);
         }
-        if (containerScrollViewListener != null) {
-            lastScrollY = containerScrollViewListener.getScrollY();
+        if (scrollable != null) {
+            lastScrollY = scrollable.getScrollY();
         }
         draggedItem.onDragStart();
         requestDisallowInterceptTouchEvent(true);
@@ -588,8 +588,8 @@ public class DragLinearLayout extends LinearLayout {
         draggedItem.setTotalOffset(offset);
         invalidate();
 
-        if (containerScrollViewListener != null) {
-            lastScrollY = containerScrollViewListener.getScrollY();
+        if (scrollable != null) {
+            lastScrollY = scrollable.getScrollY();
         }
         handleContainerScroll(downY + draggedItem.totalDragOffset);
 
@@ -696,10 +696,10 @@ public class DragLinearLayout extends LinearLayout {
     }
 
     private void handleContainerScroll(final int currentY) {
-        if (null != containerScrollViewListener) {
-            final int startScrollY = containerScrollViewListener.getScrollY();
+        if (null != scrollable) {
+            final int startScrollY = scrollable.getScrollY();
             final int absY = getTop() - startScrollY + currentY;
-            final int height = containerScrollViewListener.getHeight();
+            final int height = scrollable.getHeight();
 
             int delta = 0;
 
@@ -710,7 +710,7 @@ public class DragLinearLayout extends LinearLayout {
             }
 
             if (delta != 0) {
-                containerScrollViewListener.smoothScrollBy(0, delta);
+                scrollable.smoothScrollBy(0, delta);
             }
         }
     }
